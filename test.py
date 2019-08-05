@@ -1,1 +1,3 @@
-print("test")
+x = "test2"
+
+print(x)
