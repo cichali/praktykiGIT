@@ -1,11 +1,5 @@
 import cv2
 import numpy
-import matplotlib.pyplot
-import matplotlib.animation
-from matplotlib import style
-
-fig = plt.figure()
-ax1 = fig.add_subplot(1, 1, 1)
 
 face_cascade = cv2.CascadeClassifier('C:\\Users\\cichy\\Desktop\\Praktyki_Folder\\haarcascade_frontalface_alt.xml')
 face_center = [0, 0]
@@ -65,7 +59,6 @@ while(True):
     # Display the actual frame
     print("Height: " + str(face_center[0]) + " Width: " + str(face_center[1]))
     frame = cv2.line(frame, (width_conv(face_center[1]), height_conv(face_center[0])), (width_conv(prev_face_center[1]), height_conv(prev_face_center[0])), (0, 255, 0), 1)
-
     cv2.imshow('Webcam Video', frame)
     prev_face_center = face_center
     # Exit loop on key
