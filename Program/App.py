@@ -18,15 +18,18 @@ t_data = []
 # Get start time
 start_time = time.time()
 
-win = pyqtgraph.GraphicsWindow(title="Plots")
+win = pyqtgraph.GraphicsWindow(title="Plots",size=(1900,1000))
 width_plot = win.addPlot()
 height_plot = win.addPlot()
 
-width_plot.showGrid(x=True, y=True)
-height_plot.showGrid(x=True, y=True)
+width_curve = width_plot.plot()
+height_curve = height_plot.plot()
 
-width_plot.setYRange(-frame_width/2,frame_width)
-height_plot.setYRange(-frame_height/2,frame_height)
+width_plot.setYRange(-frame_width/2,frame_width/2)
+height_plot.setYRange(-frame_height/2,frame_height/2)
+
+width_plot.showGrid(x=False, y=True)
+height_plot.showGrid(x=False, y=True)
 
 width_plot.addLegend()
 height_plot.addLegend()
@@ -36,8 +39,7 @@ width_plot.setLabel('bottom', 'Time', units='s')
 height_plot.setLabel('left', 'Height', units='px')
 height_plot.setLabel('bottom', 'Time', units='s')
 
-width_curve = width_plot.plot()
-height_curve = height_plot.plot()
+
 
 def update():
     global w_data, h_data, t_data
@@ -86,7 +88,7 @@ while(True):
     # Convert frame to grey
     gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     # Face detection
-    faces = face_cascade.detectMultiScale(gray_frame)
+    faces = face_cascade.detectMultiScale(gray_frame, 1.3, 4)
     # Draw rectangles around faces, circle in the middle, print coordinates
     for (x,y,w,h) in faces:
         frame = cv2.rectangle(frame, (x,y), (x+w,y+h), (0,0,255), 1)
