@@ -29,15 +29,15 @@ def width_conv(width):
 def height_conv2(height):
     global frame_height
     middle_height = frame_height/2
-    new_height = middle_height - height
-    return int(new_height)
+    new_height2 = middle_height - height
+    return int(new_height2)
 
 # Width coordinates conversion 2
 def width_conv2(width):
     global frame_width
     middle_width = frame_width/2 
-    new_width = width - middle_width
-    return int(new_width)
+    new_width2 = width - middle_width
+    return int(new_width2)
 
 # Capture video from deafult webcam
 captured_video = cv2.VideoCapture(0)
@@ -62,7 +62,6 @@ while(True):
     cv2.imshow('Webcam Video', frame)
     # Exit loop on key
     if cv2.waitKey(1) & 0xFF == ord('q'):
-        print("Height: " + str(frame_height) + "\nWidth: " + str(frame_width))
         break
 # Release the webcam and close window
 captured_video.release()
