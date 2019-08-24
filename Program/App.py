@@ -1,6 +1,7 @@
 import cv2
 import pyqtgraph
 import time
+import math
 
 
 #Define frame size
@@ -14,37 +15,45 @@ prev_face_center = [0, 0]
 # Initialize plotting data
 w_data = []
 h_data = []
+dist_data = []
 t_data = []
 # Get start time
 start_time = time.time()
 
 win = pyqtgraph.GraphicsWindow(title="Plots",size=(1900,1000))
-width_plot = win.addPlot()
-height_plot = win.addPlot()
+width_plot = win.addPlot(1,1)
+height_plot = win.addPlot(2,1)
+dist_plot = win.addPlot(3,1)
 
 width_curve = width_plot.plot()
 height_curve = height_plot.plot()
+dist_curve = dist_plot.plot()
 
 width_plot.setYRange(-frame_width/2,frame_width/2)
 height_plot.setYRange(-frame_height/2,frame_height/2)
 
 width_plot.showGrid(x=False, y=True)
 height_plot.showGrid(x=False, y=True)
+dist_plot.showGrid(x=False, y=True)
 
 width_plot.addLegend()
 height_plot.addLegend()
+dist_plot.addLegend()
 
 width_plot.setLabel('left', 'Width', units='px')
 width_plot.setLabel('bottom', 'Time', units='s')
 height_plot.setLabel('left', 'Height', units='px')
 height_plot.setLabel('bottom', 'Time', units='s')
+dist_plot.setLabel('left', 'Distance', units='px')
+dist_plot.setLabel('bottom', 'Time', units='s')
 
 
 
 def update():
-    global w_data, h_data, t_data
-    width_curve.setData(t_data, w_data, pen="b")
-    height_curve.setData(t_data, h_data, pen="r")
+    global w_data, h_data, t_data, dist_data
+    width_curve.setData(t_data, w_data, pen="b", symbol="+")
+    height_curve.setData(t_data, h_data, pen="r", symbol="+")
+    dist_curve.setData(t_data, dist_data, pen="g", symbol="+")
 
 # Height coordinates conversion 
 def height_conv(height):
@@ -95,15 +104,24 @@ while(True):
         face_center = [height_conv2(y+(h/2)), width_conv2(x+(w/2))]
         frame = cv2.circle(frame, (int(x+(w/2)), int(y+(h/2))), 3, (255,0,0), 1)
         end_time = time.time()
+        # Append coordinates, distance, and time to the list
         h_data.append(face_center[0])
         w_data.append(face_center[1])
+        dist_data.append(math.sqrt(pow((face_center[1]-prev_face_center[1]),2) + math.pow((face_center[0]-prev_face_center[0]),2)))
         t_data.append(end_time-start_time)
     # Display the actual frame
-    print("Height: " + str(face_center[0]) + " Width: " + str(face_center[1]))
+    ### print("Height: " + str(face_center[0]) + " Width: " + str(face_center[1]))
     frame = cv2.line(frame, (width_conv(face_center[1]), height_conv(face_center[0])), (width_conv(prev_face_center[1]), height_conv(prev_face_center[0])), (0, 255, 0), 1)
     cv2.imshow('Webcam Video', frame)
     # Update plots
     update()
+
+    if len(t_data) > 50:
+        h_data.pop(0)
+        w_data.pop(0)
+        dist_data.pop(0)
+        t_data.pop(0)
+
     prev_face_center = face_center
     # Exit loop on key
     if cv2.waitKey(1) & 0xFF == ord('q'):
