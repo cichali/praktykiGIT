@@ -1,71 +1,84 @@
+import sys
 import cv2
 import dlib
 import time
-import numpy
 
 #Define frame size
 frame_height = 540
 frame_width = 960
+"""
+frame_height = 720
+frame_width = 1280
+"""
+
 # Initialize filter
 face_cascade = cv2.CascadeClassifier('C:\\Users\\cichy\\Desktop\\Praktyki_Folder\\haarcascade_frontalface_alt.xml')
-# Initialize face coordinates
-face_center = [0, 0]
-prev_face_center = [0, 0]
-
 detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor("C:\\Users\\cichy\\Desktop\\Praktyki_Folder\\shape_predictor_68_face_landmarks.dat")
-
 
 # Capture video from deafult webcam
 captured_video = cv2.VideoCapture(0)
 captured_video.set(3, frame_width)
 captured_video.set(4, frame_height)
 
-#frame_width = frame_height
+def norm_coord(rect_x1, rect_y1, rect_x2, rect_y2 ,coord_x, coord_y):
+    width = rect_x2-rect_x1
+    height = rect_y2-rect_y1
+    mid_x = rect_x2 - width/2
+    mid_y = rect_y2 - height/2
+    new_coord_x = (coord_x-mid_x)/width*2
+    new_coord_y = (coord_y-mid_y)/-height*2
+    new_coord_x = round(new_coord_x, 4)
+    new_coord_y = round(new_coord_y, 4)
+    return(new_coord_x, new_coord_y)
 
-def norm_x(x):
-    x = float(x)
-    new_x = (x-(frame_width/2))/(frame_width/2)
-    return(new_x)
-
-def norm_y(y):
-    y = float(y)
-    new_y = (y-(frame_height/2))/(-frame_height/2)
-    return(new_y)
+flag = 1
 
 while(True):
+
     # Obtain a frame from video and flip
     ret, frame = captured_video.read()
     frame = cv2.flip(frame, 1)
-    # crop frame to square
-    ###frame = frame[0:720, int((frame_width-frame_height)/2):int(frame_width-(frame_width-frame_height)/2)]
-    # Draw a circle at [0, 0]
+    # Draw a circle at middle
     cv2.circle(frame, (int(frame_width/2), int(frame_height/2)), 2, (0, 0, 255), 1)
-    ### frame = cv2.circle(frame, (TU DAJ X,TU DAJ Y , 3, (255, 255, 255), 1)
     # Convert frame to grey
     gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     # Face detection
     faces = detector(gray_frame)
     for face in faces:
-        x1 = face.left()
-        y1 = face.top()
-        x2 = face.right()
-        y2 = face.bottom()
         landmarks = predictor(gray_frame, face)
+        if landmarks.part(19).y < landmarks.part(24).y:
+            rect_point = landmarks.part(19).y
+        else:
+            rect_point = landmarks.part(24).y
 
+        # Draw rectangle around detected face
+        cv2.rectangle(frame, (landmarks.part(0).x, rect_point), (landmarks.part(16).x, landmarks.part(8).y), (0, 0, 255), 1)
+        # Draw a black circle at the middle of the face rectangle
+        cv2.circle(frame, (int(landmarks.part(0).x+((landmarks.part(16).x-landmarks.part(0).x)/2)), (int(landmarks.part(8).y-(landmarks.part(8).y-rect_point)/2))), 1, (0, 0, 0), -1)
         for n in range(0, 68):
             x = landmarks.part(n).x
             y = landmarks.part(n).y
-            cv2.circle(frame, (x, y), 2, (0, 255, 0), -1)
-            print(str(norm_x(landmarks.part(30).x)) + ", " + str(norm_y(landmarks.part(30).y)))
+            cv2.circle(frame, (x, y), 1, (0, 255, 0), -1)
 
-    # Display the actual frame
+    if flag == 1:
+         start_time = time.time()
+         prev_time = 0
+         flag = 0
+
+    end_time = time.time()
+    elapsed_time = round((end_time-start_time),1)
+
+    if elapsed_time - prev_time >= 0.5 and elapsed_time != prev_time:
+        print(str(elapsed_time))
+        for n in range(27, 68):
+             points_x, point_y = norm_coord(landmarks.part(0).x, rect_point, landmarks.part(16).x, landmarks.part(8).y, landmarks.part(n).x, landmarks.part(n).y)
+        prev_time = elapsed_time
+        
+    # Display frame
     cv2.imshow('Webcam Video', frame)
-    height = frame.shape[0]
-    width = frame.shape[1] 
-    # Exit loop on key
+    # Exit loop
     if cv2.waitKey(1) & 0xFF == ord('q'):
-        print(str(width) + ", " + str(height))
         break
 # Release the webcam and close window
 captured_video.release()
