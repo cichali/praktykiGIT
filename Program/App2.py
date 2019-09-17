@@ -2,6 +2,7 @@ import sys
 import cv2
 import dlib
 import time
+import csv
 
 #Define frame size
 frame_height = 540
@@ -10,6 +11,10 @@ frame_width = 960
 frame_height = 720
 frame_width = 1280
 """
+flag = 1
+# Create CSV file
+with open('tekst.csv', 'w') as new_file:
+    writer = csv.writer(new_file)
 
 # Initialize filter
 face_cascade = cv2.CascadeClassifier('C:\\Users\\cichy\\Desktop\\Praktyki_Folder\\haarcascade_frontalface_alt.xml')
@@ -21,22 +26,20 @@ captured_video = cv2.VideoCapture(0)
 captured_video.set(3, frame_width)
 captured_video.set(4, frame_height)
 
+# Editing coordinates 
 def norm_coord(rect_x1, rect_y1, rect_x2, rect_y2 ,coord_x, coord_y):
-    width = rect_x2-rect_x1
-    height = rect_y2-rect_y1
+    width = rect_x2 - rect_x1
+    height = rect_y2 - rect_y1
     mid_x = rect_x2 - width/2
     mid_y = rect_y2 - height/2
     new_coord_x = (coord_x-mid_x)/width*2
     new_coord_y = (coord_y-mid_y)/-height*2
-    new_coord_x = round(new_coord_x, 4)
-    new_coord_y = round(new_coord_y, 4)
+    new_coord_x = round(new_coord_x, 3)
+    new_coord_y = round(new_coord_y, 3)
     return(new_coord_x, new_coord_y)
 
-flag = 1
-
-while(True):
-
-    # Obtain a frame from video and flip
+while(captured_video.isOpened()):
+    # Obtain a frame from video and flip it
     ret, frame = captured_video.read()
     frame = cv2.flip(frame, 1)
     # Draw a circle at middle
@@ -60,21 +63,29 @@ while(True):
             x = landmarks.part(n).x
             y = landmarks.part(n).y
             cv2.circle(frame, (x, y), 1, (0, 255, 0), -1)
-
+    # Reference time
     if flag == 1:
-         start_time = time.time()
-         prev_time = 0
-         flag = 0
+        start_time = time.time()
+        prev_time = 0
+        flag = 0
 
     end_time = time.time()
     elapsed_time = round((end_time-start_time),1)
-
+    
     if elapsed_time - prev_time >= 0.5 and elapsed_time != prev_time:
         print(str(elapsed_time))
+        line = []
+        line.append(str(elapsed_time))
         for n in range(27, 68):
-             points_x, point_y = norm_coord(landmarks.part(0).x, rect_point, landmarks.part(16).x, landmarks.part(8).y, landmarks.part(n).x, landmarks.part(n).y)
+            point_x, point_y = norm_coord(landmarks.part(0).x, rect_point, landmarks.part(16).x, landmarks.part(8).y, landmarks.part(n).x, landmarks.part(n).y)
+            line.append(str(point_x))
+            line.append(str(point_y))
+
+        with open('tekst.csv', 'a', newline='') as new_file:
+            writer = csv.writer(new_file, delimiter = ',')
+            writer.writerow(line)
+
         prev_time = elapsed_time
-        
     # Display frame
     cv2.imshow('Webcam Video', frame)
     # Exit loop

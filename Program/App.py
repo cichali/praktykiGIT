@@ -19,8 +19,8 @@ dist_data = []
 t_data = []
 # Get start time
 start_time = time.time()
-
-win = pyqtgraph.GraphicsWindow(title="Plots",size=(1900,1000))
+# Set graphs
+win = pyqtgraph.GraphicsWindow(title="Plots",size=(500,500))
 width_plot = win.addPlot(1,1)
 height_plot = win.addPlot(2,1)
 dist_plot = win.addPlot(3,1)
@@ -48,7 +48,7 @@ dist_plot.setLabel('left', 'Distance', units='px')
 dist_plot.setLabel('bottom', 'Time', units='s')
 
 
-
+# Data plotting
 def update():
     global w_data, h_data, t_data, dist_data
     width_curve.setData(t_data, w_data, pen="b", symbol="+")
@@ -115,7 +115,7 @@ while(True):
     cv2.imshow('Webcam Video', frame)
     # Update plots
     update()
-
+    # Delete viewed data
     if len(t_data) > 50:
         h_data.pop(0)
         w_data.pop(0)
