@@ -17,7 +17,7 @@ with open('tekst.csv', 'w') as new_file:
     writer = csv.writer(new_file)
 
 # Initialize filter
-face_cascade = cv2.CascadeClassifier('C:\\Users\\cichy\\Desktop\\Praktyki_Folder\\haarcascade_frontalface_alt.xml')
+### face_cascade = cv2.CascadeClassifier('C:\\Users\\cichy\\Desktop\\Praktyki_Folder\\haarcascade_frontalface_alt.xml')
 detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor("C:\\Users\\cichy\\Desktop\\Praktyki_Folder\\shape_predictor_68_face_landmarks.dat")
 
