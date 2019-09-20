@@ -13,7 +13,7 @@ frame_width = 1280
 """
 flag = 1
 # Create CSV file
-with open('tekst.csv', 'w') as new_file:
+with open('dane.csv', 'w') as new_file:
     writer = csv.writer(new_file)
 
 # Initialize filter
@@ -48,6 +48,7 @@ while(captured_video.isOpened()):
     gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     # Face detection
     faces = detector(gray_frame)
+    # Get the highest point of face
     for face in faces:
         landmarks = predictor(gray_frame, face)
         if landmarks.part(19).y < landmarks.part(24).y:
@@ -59,6 +60,7 @@ while(captured_video.isOpened()):
         cv2.rectangle(frame, (landmarks.part(0).x, rect_point), (landmarks.part(16).x, landmarks.part(8).y), (0, 0, 255), 1)
         # Draw a black circle at the middle of the face rectangle
         cv2.circle(frame, (int(landmarks.part(0).x+((landmarks.part(16).x-landmarks.part(0).x)/2)), (int(landmarks.part(8).y-(landmarks.part(8).y-rect_point)/2))), 1, (0, 0, 0), -1)
+        # Mark the face landmarks with a circle
         for n in range(0, 68):
             x = landmarks.part(n).x
             y = landmarks.part(n).y
@@ -75,13 +77,16 @@ while(captured_video.isOpened()):
     if elapsed_time - prev_time >= 0.5 and elapsed_time != prev_time:
         print(str(elapsed_time))
         line = []
+        # Append current time to the list
         line.append(str(elapsed_time))
         for n in range(27, 68):
+            # Get coordinates of landmarks
             point_x, point_y = norm_coord(landmarks.part(0).x, rect_point, landmarks.part(16).x, landmarks.part(8).y, landmarks.part(n).x, landmarks.part(n).y)
+            # Append coordinates to the list
             line.append(str(point_x))
             line.append(str(point_y))
-
-        with open('tekst.csv', 'a', newline='') as new_file:
+        # Append line to the CSV file
+        with open('dane.csv', 'a', newline='') as new_file:
             writer = csv.writer(new_file, delimiter = ',')
             writer.writerow(line)
 

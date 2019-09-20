@@ -109,7 +109,7 @@ while(True):
         w_data.append(face_center[1])
         dist_data.append(math.sqrt(pow((face_center[1]-prev_face_center[1]),2) + math.pow((face_center[0]-prev_face_center[0]),2)))
         t_data.append(end_time-start_time)
-    # Display the actual frame
+    # Display the frame
     ### print("Height: " + str(face_center[0]) + " Width: " + str(face_center[1]))
     frame = cv2.line(frame, (width_conv(face_center[1]), height_conv(face_center[0])), (width_conv(prev_face_center[1]), height_conv(prev_face_center[0])), (0, 255, 0), 1)
     cv2.imshow('Webcam Video', frame)
